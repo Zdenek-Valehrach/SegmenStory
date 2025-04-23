@@ -9,7 +9,7 @@ st.write("Aplikace pro segmentaci obrázků a generování textů")
 uploaded_file = st.file_uploader("Nahrajte obrázek", type=["jpg", "jpeg", "png"])
 
 if uploaded_file:
-    st.image(uploaded_file, caption="Nahraný obrázek", use_column_width=True)
+    st.image(uploaded_file, caption="Nahraný obrázek", use_container_width=True)
     
     if st.button("Segmentovat"):
         with st.spinner("Probíhá segmentace obrázku..."):
