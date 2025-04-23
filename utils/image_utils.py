@@ -15,7 +15,12 @@ def process_image(uploaded_file):
     img_bytes = uploaded_file.getvalue()
     img = Image.open(BytesIO(img_bytes))
     
-    # Resize large images to reasonable dimensions
-    img.thumbnail((1920, 1080))
+    # Zmenšení obrázku na mnohem menší velikost pro API (namísto 1920x1080)
+    # Hugging Face API má omezení velikosti payloadu
+    img.thumbnail((512, 512))
+    
+    # Převod na RGB formát pokud obsahuje alfa kanál (průhlednost)
+    if img.mode == 'RGBA':
+        img = img.convert('RGB')
     
     return np.array(img)
