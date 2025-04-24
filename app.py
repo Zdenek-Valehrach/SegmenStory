@@ -22,6 +22,8 @@ if "selected_segments" not in st.session_state:
     st.session_state.selected_segments = []
 if "hidden_segments" not in st.session_state:
     st.session_state.hidden_segments = []
+if "iteration_count" not in st.session_state:
+    st.session_state.iteration_count = 0
 
 st.title("SegmenStory")
 st.write("Aplikace pro segmentaci obrázků pomocí pokročilých AI modelů")
@@ -292,8 +294,8 @@ def list_select_segments(image, segments_info=None, key=None):
     # Filtrujeme pouze viditelné segmenty
     visible_segments = [seg for seg in segments_info if seg['id'] not in st.session_state[f"{key}_hidden"]]
     
-    # Vytvoříme seznam možností pro select box
-    options = ["Žádný výběr"] + [f"{seg['label']} (ID: {seg['id']})" for seg in visible_segments]
+    # Vytvoříme seznam možností pro select box - pouze název segmentu bez ID
+    options = ["Žádný výběr"] + [seg['label'].split(' (ID:')[0] for seg in visible_segments]
     segment_ids = [None] + [seg['id'] for seg in visible_segments]
     
     # Najdeme index aktuálně vybraného segmentu v options
@@ -429,6 +431,36 @@ if uploaded_file:
         # Zobrazení pouze jednoho obrázku s názvem "Výběr objektů"
         st.subheader("Výběr objektů")
         st.image(segmented_img, use_container_width=True)
+        
+        # Přidat tlačítko "Continue to iterate?" pro pokračování v iteraci segmentace
+        if st.button("Continue to iterate?", key="btn_continue_iterate"):
+            with st.spinner("Probíhá další iterace segmentace..."):
+                # Zvýšíme počet iterací
+                st.session_state.iteration_count += 1
+                
+                # Znovu spustíme segmentaci s aktuálním stavem (může přinést vylepšené výsledky)
+                try:
+                    # Předáme informaci o skrytých segmentech jako feedback pro model
+                    refined_masks, refined_labels = segmentation.segment_image(
+                        img, 
+                        config.HF_API_TOKEN,
+                        iteration=st.session_state.iteration_count,
+                        hidden_segments=hidden_segments,
+                        previous_labels=labels
+                    )
+                    
+                    # Aktualizujeme výsledky v session state
+                    st.session_state.masks = refined_masks
+                    st.session_state.labels = refined_labels
+                    
+                    st.success(f"Iterace {st.session_state.iteration_count} dokončena! Nalezeno {len(refined_masks)} objektů.")
+                except Exception as e:
+                    st.error(f"Chyba při iteraci segmentace: {str(e)}")
+                
+                st.rerun()
+        
+        if st.session_state.iteration_count > 0:
+            st.info(f"Počet provedených iterací: {st.session_state.iteration_count}")
         
         # Pouze jedna sekce pro výběr segmentů
         try:

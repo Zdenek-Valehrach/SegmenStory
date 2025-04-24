@@ -20,7 +20,7 @@ SEGMENTATION_MODELS = [
     }
 ]
 
-def segment_image(image_array, hf_token, max_retries=2, retry_delay=2):
+def segment_image(image_array, hf_token, max_retries=2, retry_delay=2, iteration=0, hidden_segments=None, previous_labels=None):
     """
     Segments an image using a segmentation model via Hugging Face API
     with retry logic and fallback models
@@ -30,6 +30,9 @@ def segment_image(image_array, hf_token, max_retries=2, retry_delay=2):
         hf_token: Hugging Face API token
         max_retries: Maximum number of retry attempts per model
         retry_delay: Delay between retries in seconds
+        iteration: Current iteration number (0 = initial segmentation)
+        hidden_segments: List of segment indices that were hidden by the user
+        previous_labels: List of labels from previous segmentation iteration
         
     Returns:
         masks: list of segmentation masks
