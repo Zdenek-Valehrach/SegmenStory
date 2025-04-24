@@ -65,7 +65,6 @@ def visualize_segmentation(image, masks, labels):
                 else:
                     mask = np.array(mask)
             except Exception as e:
-                st.warning(f"Nelze zpracovat masku {i}: {str(e)}")
                 continue
         
         # Ověříme platnost masky
@@ -165,7 +164,7 @@ def visualize_segmentation(image, masks, labels):
                 draw.text(text_position, label, fill=(255, 255, 255))
                 
         except Exception as e:
-            st.warning(f"Chyba při zpracování masky {i}: {str(e)}")
+            continue
     
     return result_img, segments_info
 
@@ -189,7 +188,6 @@ if uploaded_file:
             st.session_state.processed_image = img
             st.session_state.show_original = False
             
-            st.success(f"Segmentace dokončena! Nalezeno {len(masks)} objektů.")
             st.rerun()
     
     # Zpracování segmentovaného obrázku, pokud existuje
