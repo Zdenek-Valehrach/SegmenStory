@@ -203,8 +203,8 @@ if uploaded_file:
         st.subheader("Výsledek segmentace")
         st.image(segmented_img, use_container_width=True)
         
-        # Vytvoření rolovací nabídky pro výběr segmentů - pouze s názvy, bez ID
-        segment_options = [seg['label'] for seg in segments_info]
+        # Vytvoření rolovací nabídky pro výběr segmentů - pouze s unikátními názvy segmentů
+        segment_options = sorted(list(set([seg['label'] for seg in segments_info])))
         if segment_options:
             st.selectbox("Seznam nalezených segmentů:", segment_options)
         
