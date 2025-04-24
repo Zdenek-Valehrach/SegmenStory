@@ -18,8 +18,9 @@ if "processed_image" not in st.session_state:
 if "show_original" not in st.session_state:
     st.session_state.show_original = True
 
-st.title("SegmenStory")
-st.write("Aplikace pro segmentaci obrázků pomocí pokročilých AI modelů")
+# Přesouvám titulek a popis do postranního panelu
+st.sidebar.title("SegmenStory")
+st.sidebar.write("Aplikace pro segmentaci obrázků pomocí pokročilých AI modelů")
 
 # Funkce pro vizualizaci segmentovaných oblastí
 def visualize_segmentation(image, masks, labels):
@@ -168,16 +169,16 @@ def visualize_segmentation(image, masks, labels):
     
     return result_img, segments_info
 
-# Hlavní část aplikace
-uploaded_file = st.file_uploader("Nahrajte obrázek", type=["jpg", "jpeg", "png"])
+# Hlavní část aplikace - přesunuta do sidebar
+uploaded_file = st.sidebar.file_uploader("Nahrajte obrázek", type=["jpg", "jpeg", "png"])
 
 if uploaded_file:
-    # Zobrazíme nahraný obrázek před segmentací
+    # Zobrazíme nahraný obrázek před segmentací v hlavním obsahu
     if st.session_state.show_original:
         st.image(uploaded_file, caption="Nahraný obrázek", use_container_width=True)
     
-    # Tlačítko pro segmentaci
-    if st.button("Segmentovat"):
+    # Tlačítko pro segmentaci v sidebaru
+    if st.sidebar.button("Segmentovat"):
         with st.spinner("Probíhá segmentace obrázku..."):
             img = image_utils.process_image(uploaded_file)
             masks, labels = segmentation.segment_image(img, config.HF_API_TOKEN)
@@ -199,17 +200,17 @@ if uploaded_file:
         # Vizualizace segmentace
         segmented_img, segments_info = visualize_segmentation(img, masks, labels)
         
-        # Zobrazení segmentovaného obrázku
+        # Zobrazení segmentovaného obrázku v hlavním obsahu
         st.subheader("Výsledek segmentace")
         st.image(segmented_img, use_container_width=True)
         
-        # Vytvoření rolovací nabídky pro výběr segmentů - pouze s unikátními názvy segmentů
+        # Přesuneme rolovací nabídku pro výběr segmentů do sidebar
         segment_options = sorted(list(set([seg['label'] for seg in segments_info])))
         if segment_options:
-            st.selectbox("Seznam nalezených segmentů:", segment_options)
+            st.sidebar.selectbox("Seznam nalezených segmentů:", segment_options)
         
-        # Přidáme tlačítko pro návrat k nahrání nového obrázku
-        if st.button("Nahrát nový obrázek"):
+        # Přidáme tlačítko pro návrat k nahrání nového obrázku do sidebar
+        if st.sidebar.button("Nahrát nový obrázek"):
             st.session_state.masks = None
             st.session_state.labels = None
             st.session_state.processed_image = None
