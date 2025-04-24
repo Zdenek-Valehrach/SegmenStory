@@ -363,7 +363,7 @@ def list_select_segments(image, segments_info=None, key=None):
         cols = st.columns(len(row))
         for idx, segment in enumerate(row):
             is_selected = segment['id'] in st.session_state[f"{key}_selected"]
-            button_label = f"{segment['label']} (ID: {segment['id']})"
+            button_label = segment['label']  # Display only the label without ID
             button_color = "primary" if is_selected else "secondary"
             
             # V novějších verzích Streamlit můžeme použít use_container_width=True
