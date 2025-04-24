@@ -240,7 +240,7 @@ def visualize_segmentation(image, masks, labels, selected_segments=None, hidden_
 # Funkce pro zobrazení seznamu segmentů pro výběr
 def list_select_segments(image, segments_info=None, key=None):
     """
-    Zobrazí seznam segmentů pro výběr ze seznamu místo klikání na obrázek
+    Zobrazí seznam segmentů pro výběr pomocí rolovací nabídky
     
     Args:
         image: PIL Image nebo numpy array s obrázkem
@@ -249,7 +249,7 @@ def list_select_segments(image, segments_info=None, key=None):
         key: Unikátní klíč pro Streamlit komponentu
     
     Returns:
-        selected_segments: Seznam ID vybraných segmentů
+        selected_segment: ID vybraného segmentu (pouze jeden)
         hidden_segments: Seznam ID skrytých segmentů
     """
     # Převod na PIL Image, pokud je potřeba
@@ -282,9 +282,9 @@ def list_select_segments(image, segments_info=None, key=None):
     if key is None:
         key = "list_select_" + str(hash(image))
     
-    # Inicializace stavů
+    # Inicializace stavů - nyní pouze jeden vybraný segment (ne seznam)
     if f"{key}_selected" not in st.session_state:
-        st.session_state[f"{key}_selected"] = []
+        st.session_state[f"{key}_selected"] = None
     
     if f"{key}_hidden" not in st.session_state:
         st.session_state[f"{key}_hidden"] = []
@@ -292,43 +292,43 @@ def list_select_segments(image, segments_info=None, key=None):
     # Filtrujeme pouze viditelné segmenty
     visible_segments = [seg for seg in segments_info if seg['id'] not in st.session_state[f"{key}_hidden"]]
     
-    # Zobrazíme tlačítka pro každý segment (implementace pomocí buttonů místo multiselectu)
+    # Vytvoříme seznam možností pro select box
+    options = ["Žádný výběr"] + [f"{seg['label']} (ID: {seg['id']})" for seg in visible_segments]
+    segment_ids = [None] + [seg['id'] for seg in visible_segments]
+    
+    # Najdeme index aktuálně vybraného segmentu v options
+    selected_index = 0
+    if st.session_state[f"{key}_selected"] is not None:
+        try:
+            selected_index = segment_ids.index(st.session_state[f"{key}_selected"])
+        except ValueError:
+            selected_index = 0
+    
     st.write("### Seznam nalezených segmentů:")
     
-    # Rozdělíme segmenty do řádků po 3 tlačítkách
-    segment_buttons = []
-    for i in range(0, len(visible_segments), 3):
-        row = visible_segments[i:i+3]
-        cols = st.columns(len(row))
-        for idx, segment in enumerate(row):
-            is_selected = segment['id'] in st.session_state[f"{key}_selected"]
-            button_label = f"{segment['label']} (ID: {segment['id']})"
-            button_color = "primary" if is_selected else "secondary"
-            
-            # V novějších verzích Streamlit můžeme použít use_container_width=True
-            if cols[idx].button(
-                button_label, 
-                key=f"btn_{key}_{segment['id']}",
-                type=button_color
-            ):
-                # Přepnutí stavu výběru
-                if segment['id'] in st.session_state[f"{key}_selected"]:
-                    st.session_state[f"{key}_selected"].remove(segment['id'])
-                else:
-                    st.session_state[f"{key}_selected"].append(segment['id'])
-                st.rerun()  # Používáme st.rerun() místo st.experimental_rerun()
+    # Zobrazíme rolovací nabídku pro výběr segmentu
+    selected_option = st.selectbox(
+        "Vybrat segment:", 
+        options,
+        index=selected_index,
+        key=f"select_{key}"
+    )
+    
+    # Aktualizace vybraného segmentu podle výběru z rolovací nabídky
+    selected_index = options.index(selected_option)
+    st.session_state[f"{key}_selected"] = segment_ids[selected_index]
     
     # Tlačítka pro akce se segmenty
     col1, col2 = st.columns(2)
     
     with col1:
-        # Tlačítko pro skrytí vybraných segmentů
-        if st.button("Skrýt vybrané", key=f"hide_button_{key}", disabled=not st.session_state[f"{key}_selected"]):
-            # Přidáme vybrané segmenty mezi skryté
-            st.session_state[f"{key}_hidden"] = list(set(st.session_state[f"{key}_hidden"] + st.session_state[f"{key}_selected"]))
-            # Vyčistíme výběr
-            st.session_state[f"{key}_selected"] = []
-            st.rerun()
+        # Tlačítko pro skrytí vybraného segmentu
+        if st.button("Skrýt vybraný", key=f"hide_button_{key}", disabled=st.session_state[f"{key}_selected"] is None):
+            # Přidáme vybraný segment mezi skryté
+            if st.session_state[f"{key}_selected"] is not None:
+                st.session_state[f"{key}_hidden"].append(st.session_state[f"{key}_selected"])
+                st.session_state[f"{key}_selected"] = None
+                st.rerun()
     
     with col2:
         # Tlačítko pro zobrazení všech segmentů
@@ -340,12 +340,8 @@ def list_select_segments(image, segments_info=None, key=None):
     if st.session_state[f"{key}_hidden"]:
         st.write(f"Skryté segmenty: {len(st.session_state[f'{key}_hidden'])}")
     
-    # Zobrazíme informaci o aktuálně vybraných segmentech
-    if st.session_state[f"{key}_selected"]:
-        st.write(f"Vybrané segmenty: {', '.join([str(id) for id in st.session_state[f'{key}_selected']])}")
-    
-    # Vracíme aktuální stav segmentů
-    return st.session_state[f"{key}_selected"], st.session_state[f"{key}_hidden"]
+    # Vracíme aktuální stav segmentů - nyní pouze jeden vybraný segment (ne seznam)
+    return [st.session_state[f"{key}_selected"]] if st.session_state[f"{key}_selected"] is not None else [], st.session_state[f"{key}_hidden"]
 
 # Funkce pro zpracování kliknutí na segment
 def toggle_segment(segment_id):
@@ -376,10 +372,6 @@ uploaded_file = st.file_uploader("Nahrajte obrázek", type=["jpg", "jpeg", "png"
 if uploaded_file:
     # Zobrazíme nahraný obrázek
     st.image(uploaded_file, caption="Nahraný obrázek", use_container_width=True)
-    
-    # Informace o použitém modelu
-    st.info("Používáme model Mask2Former - pokročilý model pro přesnou segmentaci objektů v obraze. " + 
-            "Tento model dokáže přesněji identifikovat hranice objektů a klasifikovat běžné objekty.")
     
     if st.button("Segmentovat"):
         with st.spinner("Probíhá segmentace obrázku..."):
