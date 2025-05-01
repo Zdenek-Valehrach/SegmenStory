@@ -24,7 +24,7 @@ def segment_image(image_array, hf_token):
     url = f"https://api-inference.huggingface.co/models/{SEGMENTATION_MODEL['id']}"
     headers = {"Authorization": f"Bearer {hf_token}"}
     
-    with st.spinner(f"Segmentace pomocí {SEGMENTATION_MODEL['description']}..."):
+    with st.spinner(f"{SEGMENTATION_MODEL['description']} na tom mrká, jak ďas..."):
         try:
             response = requests.post(url, headers=headers, json={"inputs": img_str}, timeout=30)
             

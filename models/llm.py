@@ -1,82 +1,61 @@
+import sys
+import os
+from pathlib import Path
 import requests
-import time
-import streamlit as st
-from config import HF_API_TOKEN  # Import tokenu z config.py
+import re
 
-def generate_text(prompt, hf_token=HF_API_TOKEN):
-    """
-    Generates text using Hugging Face API with reliable fallback models
-    """
-    # Seznam ověřených modelů dostupných přes Inference API
-    models = [
-        "HuggingFaceH4/zephyr-7b-beta",        # Rychlý a kvalitní
-        "CohereForAI/aya-23-35B",              # Výborná čeština
-        "mistralai/Mistral-7B-Instruct-v0.2",  # Osvědčený model
-        "Qwen/Qwen1.5-7B-Chat",                # Multilingvální
-        "google/flan-t5-xxl"                   # Záložní jednoduchý model
-    ]
-    
-    headers = {
-        "Authorization": f"Bearer {hf_token}",
-        "Content-Type": "application/json"
-    }
-    
-    # Optimalizovaný payload pro chatové modely
-    payload = {
-        "inputs": prompt,
-        "parameters": {
-            "max_new_tokens": 512,
-            "temperature": 0.7,
-            "top_p": 0.9,
-            "repetition_penalty": 1.2
+# Přidání kořenového adresáře do Python cesty pro testování v terminálu
+# current_dir = Path(__file__).resolve().parent  # Adresář models/
+# project_root = current_dir.parent  # Kořenový adresář SegmenStory/
+# sys.path.append(str(project_root))
+
+# Nyní lze importovat config z kořene
+from config import PER_API_TOKEN
+
+class PerplexityLLM:
+    def __init__(self, api_key=None, model="sonar"):
+        self.api_key = api_key or PER_API_TOKEN
+        self.model = model
+        self.base_url = "https://api.perplexity.ai/chat/completions"
+
+    def generate(self, prompt, max_tokens=2000, temperature=0.7):
+        headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json"
         }
-    }
+        payload = {
+            "model": self.model,
+            "messages": [
+                {
+                    "role": "system",
+                    "content": "Jsi největší odborník na evoluční antropologii s neodolatelným smyslem pro humor. Tvé znalosti sahají od prehistorických nástrojů po moderní technologie a vždy dokážeš vykouzlit úsměv na tváři."
+                },
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
+            "max_tokens": max_tokens,
+            "temperature": temperature
+        }
+        response = requests.post(self.base_url, headers=headers, json=payload, timeout=60)
+        if response.status_code == 200:
+            # return response.json()["choices"][0]["message"]["content"]
+            generated_text = response.json()["choices"][0]["message"]["content"]
+            # Odstranění samostatných [číslo] výskytů (ne na konci věty)
+            cleaned_text = re.sub(r'\[(?!\^)\d+\]', '', generated_text)
+            return cleaned_text
+        else:
+            raise Exception(f"Chyba API {response.status_code}: {response.text}")
 
-    for model in models:
-        url = f"https://api-inference.huggingface.co/models/{model}"
-        st.info(f"Attempting to generate using: {model}")
-        
-        try:
-            response = requests.post(
-                url,
-                headers=headers,
-                json=payload,
-                timeout=45  # Zvýšený timeout pro větší modely
-            )
-            
-            # Zpracování odpovědi
-            if response.status_code == 200:
-                try:
-                    data = response.json()
-                    # Unifikované zpracování různých formátů odpovědí
-                    if isinstance(data, list):
-                        return data[0].get('generated_text', data[0].get('text', ''))
-                    if isinstance(data, dict):
-                        return data.get('generated_text', data.get('text', ''))
-                    return str(data)
-                except Exception as e:
-                    st.warning(f"Response parsing error: {str(e)}")
-                    continue
-            
-            # Specifické chybové stavy
-            elif response.status_code == 503:
-                wait_time = response.json().get('estimated_time', 30)
-                st.info(f"Model loading - retrying in {wait_time}s...")
-                time.sleep(wait_time + 5)
-                continue
-                
-            elif response.status_code in [401, 403]:
-                st.error("Authorization failed - check your API token")
-                break
-                
-            else:
-                st.warning(f"HTTP {response.status_code} - trying next model")
-                continue
-                
-        except requests.exceptions.RequestException as e:
-            st.warning(f"Connection error: {str(e)}")
-            time.sleep(2)
-            continue
+# Testování v terminálu
+# if __name__ == "__main__":
+#     from utils.prompt_utils_2 import PromptBuilder
 
-    st.error("All models failed. Check token and model availability.")
-    return "Text generation failed. Please try again later."
+#     builder = PromptBuilder()
+#     segment = "příborník"
+#     prompt = (
+#         f"Vymysli vtipný příběh vývoje tohoto \"{segment}\" jeho vliv na historii lidstva, a jakou roli by mohl hrát v budoucnosti. Využij svůj osobitý humor a znalosti o evoluční antropologii. Ať je příběh vtipný a maximálně na půl stránky."
+#     )
+#     llm = PerplexityLLM()
+#     print(llm.generate(prompt))

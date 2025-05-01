@@ -1,32 +1,42 @@
-def generate_prompt(object_name, context, iteration=False, previous_text=None):
+class PromptBuilder:
     """
-    Generates prompt templates for different contexts
-    
-    Args:
-        object_name: Name of the detected object
-        context: Type of context for the prompt
-        iteration: Boolean indicating if this is an alternative generation
-        previous_text: Previously generated text (for iterations)
-        
-    Returns:
-        Appropriate prompt text for the given context
+    Pomocná třída pro tvorbu promptů pro LLM.
     """
-    base_prompts = {
-        "Behaviorální jednání": f"Popiš behaviorální jednání objektu '{object_name}'.",
-        "Evoluční antropologie": f"Popiš evoluční význam objektu. '{object_name}'.",
-        "Společenské chování": f"Popiš společenský význam objektu '{object_name}'."
-    }
-    
-    # Základní prompt
-    base_prompt = base_prompts.get(context, f"Popiš zajímavé informace o '{object_name}'.")
-    
-    # Pokud jde o iteraci, přidáme předchozí text a požádáme o alternativní pohled
-    if iteration and previous_text:
-        return f"""Vygeneruj alternativní text o objektu '{object_name}' z pohledu: {context}.
-        
-Předchozí popis byl:
-{previous_text}
+    def __init__(self, system_role=None, context=None):
+        self.system_role = system_role or (
+            "Jsi největší odborník na evoluční antropologii s neodolatelným smyslem pro humor. "
+            "Tvé znalosti sahají od prehistorických nástrojů po moderní technologie a vždy dokážeš vykouzlit smích na tváři."
+        )
+        self.context = context or (
+            "Popiš evoluční příběh zadaného objektu, vysvětli jeho vznik jako produkt lidské evoluce a adaptace, "
+            "Popiš jeho (možný) vliv na historii lidstva a jakou roli by mohl hrát v budoucnosti. "
+            "Vytvoř vtipný příběh a zaměř se na evoluční adaptace, které vedly k jeho vzniku a významu."
+            "Ať je příběh vtipný a maximálně na půl stránky."
+        )
+        self.examples = []
 
-Nabídni jiný, kreativní pohled na stejný objekt. Použij jiné informace, styl nebo perspektivu než v předchozím popisu."""
-    
-    return base_prompt
+    def add_example(self, user_input, expected_output):
+        """
+        Přidá příklad (pro few-shot promptování).
+        """
+        self.examples.append({
+            "input": user_input,
+            "output": expected_output
+        })
+
+    def build(self, user_input):
+        """
+        Vytvoří finální prompt pro LLM.
+        """
+        prompt = f"Systémová role: {self.system_role}\n"
+        if self.context:
+            prompt += f"Kontext: {self.context}\n"
+        if self.examples:
+            prompt += "Příklady:\n"
+            for ex in self.examples:
+                prompt += f"Uživatel: {ex['input']}\nAsistent: {ex['output']}\n"
+        prompt += f"Uživatel: {user_input}\nAsistent:"
+        return prompt
+
+
+
