@@ -34,7 +34,7 @@ st.sidebar.markdown("**Evoluční antropologie \U0001F9B4 :**<br>Prof. Dr. Paleo
 st.sidebar.markdown("API Klíče")
 hf_api_key = st.sidebar.text_input("HuggingFace API klíč", value="", type="password")
 per_api_key = st.sidebar.text_input("Perplexity API klíč", value="", type="password")
-openai_api_key = st.sidebar.text_input("OpenAI API klíč", value="", type="password")
+openai_api_key = st.sidebar.text_input("nebo OpenAI API klíč", value="", type="password")
 
 # Použití klíčů
 api_key_hf = hf_api_key or config.HF_API_TOKEN
