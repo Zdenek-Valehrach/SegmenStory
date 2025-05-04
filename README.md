@@ -1,6 +1,6 @@
 # SegmenStory
 
-Tento projekt vznikl jako moje vlastní playground aplikace pro segmentaci obrázků a generování vtipných "evolučních" příběhů k jednotlivým segmentům pomocí LLM. Cílem bylo spojit moderní počítačové vidění (Mask2Former přes Hugging Face API) s generativní AI (Perplexity LLM, OpenAI) a vytvořit jednoduché, ale uživatelsky přívětivé rozhraní ve Streamlitu. Projekt byl vytvořen zejména pro otestování některých řešení pro mé budoucí pokročilejší projekty.  
+Tento projekt vznikl jako moje vlastní "playground aplikace" pro segmentaci obrázků a generování vtipných "evolučních" příběhů k jednotlivým segmentům pomocí LLM. Cílem bylo spojit moderní počítačové vidění (Mask2Former přes Hugging Face API) s generativní AI (Perplexity LLM, OpenAI) a vytvořit jednoduché, ale uživatelsky přívětivé rozhraní ve Streamlitu. Projekt byl vytvořen zejména pro otestování některých řešení pro mé budoucí pokročilejší projekty.  
 
 ## Co aplikace umí
 
