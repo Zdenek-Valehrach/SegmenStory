@@ -51,7 +51,7 @@ model_choice = st.sidebar.radio(
 
 
 # Hlavní část aplikace
-uploaded_file = st.sidebar.file_uploader("Nahraj obrázek. Neboj, zůstane jen u tebe! \U0000267B Přípona souboru musí být malími pismeny (např. .jpg, .jpeg, .png)", type=["jpg", "jpeg", "png"])
+uploaded_file = st.sidebar.file_uploader("Nahraj obrázek. Neboj, zůstane jen u tebe! \U0000267B Přípona souboru musí být malými pismeny (např. .jpg, .jpeg, .png)", type=["jpg", "jpeg", "png"])
 
 if uploaded_file:
     if st.session_state.show_original:
