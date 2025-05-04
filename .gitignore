@@ -174,4 +174,4 @@ cython_debug/
 .pypirc
 
 # Configuration file with sensitive API keys
-config.py
+# config.py
