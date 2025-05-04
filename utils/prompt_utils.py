@@ -21,7 +21,17 @@ class PromptBuilder:
         })
 
     def build(self, user_input):
-        """Vytvoří finální prompt pro LLM."""
+        # """Vytvoří finální prompt pro LLM."""
+        # def build(self, user_input):
+        """Vytvoří finální prompt s podporou vlastních témat."""
+        # Ošetření prázdného vstupu
+        if not user_input.strip():
+            raise ValueError("Nebylo zadáno žádné téma pro generování příběhu!")
+        
+        # Automatická detekce typu vstupu
+        if "evoluční příběh" not in user_input.lower():
+            user_input = f"Vytvoř evoluční příběh pro: {user_input}"
+
         prompt = f"Systémová role: {self.system_role}\n"
         if self.context:
             prompt += f"Kontext: {self.context}\n"
