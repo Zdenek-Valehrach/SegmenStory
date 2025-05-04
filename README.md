@@ -1,6 +1,6 @@
 # SegmenStory
 
-Tento projekt vznikl jako moje vlastní *playground aplikace* pro segmentaci obrázků a generování vtipných "evolučních" příběhů k jednotlivým segmentům pomocí LLM. Cílem bylo spojit moderní počítačové vidění (Mask2Former přes Hugging Face API) s generativní AI (Perplexity LLM, OpenAI) a vytvořit jednoduché, ale uživatelsky přívětivé rozhraní ve Streamlitu. Projekt byl vytvořen zejména pro otestování některých řešení pro mé budoucí pokročilejší projekty.  
+Tento projekt vznikl jako moje vlastní playground aplikace pro segmentaci obrázků a generování vtipných "evolučních" příběhů k jednotlivým segmentům pomocí LLM. Cílem bylo spojit moderní počítačové vidění (Mask2Former přes Hugging Face API) s generativní AI (Perplexity LLM, OpenAI) a vytvořit jednoduché, ale uživatelsky přívětivé rozhraní ve Streamlitu. Projekt byl vytvořen zejména pro otestování některých řešení pro mé budoucí pokročilejší projekty.  
 
 ## Co aplikace umí
 
@@ -42,7 +42,7 @@ Mask2Former vrací třídy i v různých variantách (např. `tree-merged`, `wal
 10. **Streamlit UI a UX**:
 Přidal jsem progress bar pro zábavnější čekání na výsledek a ošetřil případy, kdy segmentace selže nebo nevrátí žádné objekty – uživatel dostane jasnou hlášku, co dělat dál.
 11. **Odstraňování artefaktů z LLM výstupu**:
-Perplexity někdy generuje zbytečné číselné odkazy `[^1]`, které jsem pomocí regulárních výrazů odstranil, ale zároveň zachoval případné skutečné citace.
+Perplexity někdy generuje zbytečné číselné odkazy `[1]`, které jsem pomocí regulárních výrazů odstranil, ale zároveň zachoval případné skutečné citace.
 
 ### Srovnání modelů pro generování vtipného textu
 
