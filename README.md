@@ -69,7 +69,7 @@ Tento rozdíl je dán jak tréninkovými daty, tak optimalizací modelu – Open
 - **Ošetření neočekávaných výstupů segmentace** – například nové nebo sloučené třídy, které nebyly v původním slovníku.
 - **Ošetření selhání segmentace** – aby uživatel dostal jasné pokyny, když segmentace nic nevrátí.
 - **Limity API (velikost obrázku, počet tokenů, formát promptu)** – bylo nutné optimalizovat velikost obrázků a promptů, aby vše fungovalo spolehlivě a odpovědi byly kompletní.
-- **Odstranění artefaktů z LLM výstupu** – např. `[^1]`, které Perplexity někdy přidává bez významu.
+- **Odstranění artefaktů z LLM výstupu** – např. `[1]`, které Perplexity někdy přidává bez významu.
 
 
 ## Instalace a spuštění
@@ -93,6 +93,3 @@ streamlit run app.py
 - **API klíče**: Pro testování a bezpečný provoz doporučuji zadávat API klíče přímo v aplikaci. Pokud pole zůstane prázdné, použije se klíč z `config.py` (pokud je k dispozici).
 - **Volba modelu**: Uživatel si může jednoduše přepnout mezi Perplexity a OpenAI pro generování příběhu.
 - **Vlastní téma**: Mimo segmentované objekty lze vygenerovat příběh i pro libovolné uživatelské téma.
-
-
-Na projektu ještě pracuji!
