@@ -1,7 +1,5 @@
 class PromptBuilder:
-    """
-    Pomocná třída pro tvorbu promptů pro LLM.
-    """
+    """Pomocná třída pro tvorbu promptů pro LLM."""
     def __init__(self, system_role=None, context=None):
         self.system_role = system_role or (
             "Jsi největší odborník na evoluční antropologii s neodolatelným smyslem pro humor. "
@@ -16,18 +14,14 @@ class PromptBuilder:
         self.examples = []
 
     def add_example(self, user_input, expected_output):
-        """
-        Přidá příklad (pro few-shot promptování).
-        """
+        """Přidá příklad (pro few-shot promptování)."""
         self.examples.append({
             "input": user_input,
             "output": expected_output
         })
 
     def build(self, user_input):
-        """
-        Vytvoří finální prompt pro LLM.
-        """
+        """Vytvoří finální prompt pro LLM."""
         prompt = f"Systémová role: {self.system_role}\n"
         if self.context:
             prompt += f"Kontext: {self.context}\n"

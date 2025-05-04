@@ -7,7 +7,7 @@ Tento projekt vznikl jako moje vlastní playground aplikace pro segmentaci obrá
 - **Segmentace obrázků**: Po nahrání obrázku je pomocí Mask2Former modelu detekováno, jaké objekty na obrázku jsou.
 - **Vizualizace segmentů**: Aplikace zobrazuje barevně označené segmenty přímo na obrázku pomocí průhledných masek.
 - **Výběr třídy**: Z rozpoznaných tříd si mohu v aplikaci jednoduše vybrat konkrétní objekt (segment).
-- **Generování příběhu**: Po výběru třídy vygeneruje Perplexity LLM vtipný, evolučně-antropologický příběh o vybraném objektu.
+- **Generování příběhu**: Možnost volby mezi Perplexity LLM a OpenAI pro generování vtipných evolučních příběhů.
 - **Překlady tříd do češtiny**: Všechny třídy jsou uživateli zobrazeny v češtině díky vlastnímu slovníku, což zvyšuje srozumitelnost a konzistenci.
 - **Streamlit UI**: Intuitivní rozhraní s možností resetu a jasně komunikovanými stavy aplikace.
 
@@ -26,8 +26,17 @@ Implementoval jsem systém pro dekódování a zobrazení masek, které vrací M
     - Vyřešit konverzi mezi různými formáty obrázků (numpy array, PIL Image, RGBA/RGB)
 4. **Barevné kódování segmentů**:
 Pro lepší vizuální odlišení různých objektů jsem naprogramoval funkci `generate_distinct_colors`, která rovnoměrně rozděluje barevné spektrum podle počtu detekovaných segmentů. Díky tomu každý objekt dostane jedinečnou barvu, což výrazně zlepšuje orientaci v segmentovaném obrázku.
-5. **Perplexity LLM API**:
-Pro generování příběhů jsem napojil Perplexity API s modelem `sonar`. Musel jsem řešit správné nastavení promptu, aby odpovědi byly v češtině, vtipné a zároveň se vešly do limitu tokenů.
+5. **Perplexity LLM a OpenAI API**:
+Pro generování příběhů jsem primárně napojil Perplexity API s modelem `sonar`. Musel jsem řešit správné nastavení promptu, aby odpovědi byly v češtině, vtipné a zároveň se vešly do limitu tokenů. Následně jsem přidal i možnost volání API od OpenAI modelem `gpt-4o`. Uživatel si tedy může zvolit, který model chce použít. Zde je srovnání mnou testovaných výstupů obou modelů:
+- OpenAI (gpt-4o):
+    - Výsledky jsou konzistentní, gramaticky velmi správné, ale často méně kreativní a v úvodu textu se opakují.
+    - Model má tendenci držet se „bezpečných“ a ověřených vzorců (což je dáno i RLHF tréninkem a zaměřením na bezpečnost a univerzálnost odpovědí).
+    - Vtipnost a originalita výstupu nejsou vždy na špičkové úrovni, pokud není prompt výrazně kreativní nebo není speciálně upravená role/kontext.
+- Perplexity:
+    - Výstupy jsou nápaditější, často vtipnější, s větší variabilitou a překvapením v textu.
+    - Model je méně konzervativní, ochotnější „riskovat“ s neotřelými formulacemi a humorem.
+    - Občas udělá drobnou gramatickou chybu, ale rozdíl je minimální.
+Tento rozdíl je dán jak tréninkovými daty, tak optimalizací modelu – OpenAI modely jsou často laděny na univerzální bezpečné použití, zatímco Perplexity se nebojí větší kreativity a „odvázanosti“ v odpovědích. 
 6. **Překlady tříd a robustní mapování**:
 Narazil jsem na problém, že Mask2Former vrací třídy i v různých variantách (např. `tree-merged`, `wall-other-merged`, nebo i zcela nové jako `snow`). Proto jsem vytvořil robustní slovník a funkci na předzpracování názvů, která zvládne i neočekávané případy.
 7. **Streamlit UI a UX**:
@@ -56,7 +65,7 @@ Musel jsem řešit, že Perplexity někdy generuje zbytečné číselné odkazy 
 pip install -r requirements.txt
 ```
 
-2. Zajisti si API klíče pro Hugging Face i Perplexity a vlož je do `config.py`.
+2. Zajisti si API klíče pro Hugging Face, Perplexity nebo OpenAI a vlož je do `config.py`.
 3. Spusť aplikaci:
 
 ```

@@ -8,7 +8,7 @@ import config
 import numpy as np
 from PIL import Image
 
-# Inicializace proměnných v session state
+"""Inicializace proměnných v session state"""
 if "labels" not in st.session_state:
     st.session_state.labels = []
 if "processed_image" not in st.session_state:
@@ -21,12 +21,12 @@ if "segment_attempt" not in st.session_state:
     st.session_state.segment_attempt = False
 
 
-# Sidebar
+"""Sidebar"""
 st.sidebar.title("SegmenStory \U0001F9A7")
 st.sidebar.markdown("**Strojové vidění \U0001F441 :**<br>Segmentace obrázků Mask2Former", unsafe_allow_html=True)
 st.sidebar.markdown("**Evoluční antropologie \U0001F9B4 :**<br>Prof. Dr. Paleo Bagrstein, Ph.D.", unsafe_allow_html=True)
 
-# Hlavní část aplikace
+"""Hlavní část aplikace"""
 uploaded_file = st.sidebar.file_uploader("Nahraj obrázek. Neboj zůstane jen u tebe! \U0000267B", type=["jpg", "jpeg", "png"])
 
 if uploaded_file:
@@ -51,9 +51,9 @@ if uploaded_file:
             st.session_state.segment_attempt = True
             st.rerun()
 
-# Zobrazení výsledků
+"""Zobrazení výsledků"""
 if "segmented_image" in st.session_state and st.session_state.segmented_image is not None:
-    # Převedení na PIL Image pokud nutno
+    # Převedení na PIL Image 
     if isinstance(st.session_state.segmented_image, np.ndarray):
         display_img = Image.fromarray(st.session_state.segmented_image)
     else:
@@ -123,11 +123,11 @@ if st.session_state.labels:
                     *Admin: Jestli máš pocit, že tě profesor moc nepobavil nebo znalostně neobohatil, \
                     zavolej jej znovu. Můžeš si zvolit i jinou položku z nabídky.*", unsafe_allow_html=True)
 
-# Hláška po segmentaci
+"""Hláška při neúspěšné segmentaci"""
 if st.session_state.segment_attempt:
-    st.write("Pokud nic nevidíš, klikni na Reset a pak znova na Segmentovat. Však to znáš z Windows. \U0001F926")
+    st.write("Pokud nic nevidíš, nebo obrázek nemá zakreslené nalezené segmenty, klikni na Reset a pak znova na Segmentovat. Však to znáš z Windows. \U0001F926")
 
-# Tlačítko pro resetování
+"""Tlačítko pro resetování"""
 if st.sidebar.button("Reset"):
     st.session_state.labels = []
     st.session_state.processed_image = None
